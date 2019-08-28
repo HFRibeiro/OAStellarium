@@ -81,6 +81,10 @@ protected:
 private slots:
 	//! Load color scheme from the given ini file and section name
 	void setStelStyle(const QString& style);
+
+    void acceptConnection1();
+
+    void startRead1();
 	
 public slots:
 	//! Update the position of the button bars in the main window

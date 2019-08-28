@@ -31,6 +31,13 @@
 #include <QSettings>
 #include <QTextDocument>
 
+#include <QTcpServer>
+#include <QTcpSocket>
+
+QTcpServer server1;
+int porta1;
+QTcpSocket* client1;
+
 InfoPanel::InfoPanel(QGraphicsItem* parent) : QGraphicsTextItem("", parent),
 	infoPixmap(Q_NULLPTR)
 {
@@ -181,6 +188,9 @@ void InfoPanel::setTextFromObjects(const QList<StelObjectP>& selected)
 		setFont(font);
 
         qDebug() << "S: :" << s;
+
+        if(client1!= NULL) client1->write(s.toLocal8Bit());
+
         setHtml(s);
 		if (qApp->property("text_texture")==true) // CLI option -t given?
 		{
@@ -254,6 +264,34 @@ SkyGui::SkyGui(QGraphicsItem * parent)
 	connect(animBottomBarTimeLine, SIGNAL(valueChanged(qreal)), this, SLOT(updateBarsPos()));
 
 	setAcceptHoverEvents(true);
+
+    porta1 = 8001;
+
+    client1 = NULL;
+
+    server1.listen(QHostAddress::Any, porta1);
+
+    connect(&server1, SIGNAL(newConnection()),this, SLOT(acceptConnection1()));
+}
+
+void SkyGui::acceptConnection1()
+{
+    client1 = server1.nextPendingConnection();
+
+    connect(client1, SIGNAL(readyRead()),this, SLOT(startRead1()));
+
+    client1->write("Hello Mod1");
+
+    qDebug() << "Aceppt1";
+
+}
+
+void SkyGui::startRead1()
+{
+    char buffer[8024] = {0};
+    client1->read(buffer, client1->bytesAvailable());
+    QString data = QString::fromLocal8Bit(buffer);
+    qDebug() << data;
 }
 
 void SkyGui::init(StelGui* astelGui)
