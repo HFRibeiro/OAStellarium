@@ -1,19 +1,4 @@
 # Stellarium
-[![GitHub release](https://img.shields.io/github/release/Stellarium/stellarium.svg)](https://github.com/Stellarium/stellarium/releases/latest)
-[![GitHub Release Date](https://img.shields.io/github/release-date/Stellarium/stellarium.svg)](https://github.com/Stellarium/stellarium/releases/latest)
-[![Github All Releases](https://img.shields.io/github/downloads/Stellarium/stellarium/total.svg)](https://github.com/Stellarium/stellarium/releases)
-[![Backers and sponsors](https://img.shields.io/opencollective/all/stellarium.svg?style=flat)](https://opencollective.com/stellarium)
-[![Build Status](https://travis-ci.org/Stellarium/stellarium.svg?branch=master)](https://travis-ci.org/Stellarium/stellarium)
-[![Build status](https://ci.appveyor.com/api/projects/status/sw8j9l8q95ejkalo?svg=true)](https://ci.appveyor.com/project/alex-w/stellarium)
-[![Coverity Scan](https://img.shields.io/coverity/scan/2098.svg)](https://scan.coverity.com/projects/stellarium-stellarium)
-<br/>[![Coverage Status](https://coveralls.io/repos/github/Stellarium/stellarium/badge.svg)](https://coveralls.io/github/Stellarium/stellarium)
-[![CodeFactor](https://www.codefactor.io/repository/github/stellarium/stellarium/badge)](https://www.codefactor.io/repository/github/stellarium/stellarium)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/Stellarium/stellarium.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/Stellarium/stellarium/alerts/)
-
-Stellarium is a free open source planetarium for your computer. It shows a realistic sky
-in 3D, just like what you see with the naked eye, binoculars or a telescope.
-
-[www.stellarium.org](http://www.stellarium.org)
 
 ## Installation Instructions & Quick Start
 
@@ -22,6 +7,21 @@ Please refer to the [User Guide, Getting Started section](https://github.com/Ste
 ## Get & build the code
 
 Refer to our [wiki page](https://github.com/Stellarium/stellarium/wiki).
+
+### Instalation steps:
+```
+sudo apt-get install build-essential cmake zlib1g-dev libgl1-mesa-dev gcc g++ \
+    graphviz doxygen gettext git \
+    qtscript5-dev libqt5svg5-dev qttools5-dev-tools qttools5-dev \
+    libqt5opengl5-dev qtmultimedia5-dev libqt5multimedia5-plugins \
+    libqt5serialport5 libqt5serialport5-dev qtpositioning5-dev libgps-dev \
+    libqt5positioning5 libqt5positioning5-plugins
+mkdir -p builds/unix
+cd builds/unix
+cmake -DCMAKE_BUILD_TYPE="Release" ../../
+make -j $(nproc)
+sudo make install
+```
 
 ## Full References and Credits
 
