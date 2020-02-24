@@ -33,10 +33,14 @@
 
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 QTcpServer server1;
 int porta1;
 QTcpSocket* client1;
+int keyState = 0;
+QString infoBuffer = "";
 
 InfoPanel::InfoPanel(QGraphicsItem* parent) : QGraphicsTextItem("", parent),
 	infoPixmap(Q_NULLPTR)
@@ -187,9 +191,9 @@ void InfoPanel::setTextFromObjects(const QList<StelObjectP>& selected)
 		font.setPixelSize(StelApp::getInstance().getScreenFontSize());
 		setFont(font);
 
-        qDebug() << "S: :" << s;
+        infoBuffer = s;
 
-        if(client1!= NULL) client1->write(s.toLocal8Bit());
+        //qDebug() << "S: :" << s;
 
         setHtml(s);
 		if (qApp->property("text_texture")==true) // CLI option -t given?
@@ -292,6 +296,108 @@ void SkyGui::startRead1()
     client1->read(buffer, client1->bytesAvailable());
     QString data = QString::fromLocal8Bit(buffer);
     qDebug() << data;
+}
+
+QString SkyGui::srtipInfo(QString tmpInfo, QString keyStart, QString keyEnd)
+{
+    QString info = tmpInfo;
+    info = info.remove(0,info.indexOf(keyStart)+keyStart.length());
+    info = info.remove(info.indexOf(keyEnd),info.length());
+
+    return info;
+}
+
+void SkyGui::keyPressedSendInfo(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_Control:
+        keyState = 1;
+        qDebug() << "Control Pressed!";
+        break;
+    case Qt::Key_1:
+        if(keyState == 1)
+        {
+
+            /*
+
+            "<font color=#fffefe><h2>β Hyi - HIP 2021 - SAO 255670 - HD 2151 - HR 98</h2>
+            Type: <b>star</b><br />
+            Magnitude: <b>2.80</b><br />
+            Absolute Magnitude: 3.44<br />
+            Color Index (B-V): <b>0.60</b><br />
+            RA/Dec (J2000.0):     0h25m49.82s/-77°15'59.6\"<br>
+            RA/Dec (on date):     0h26m38.90s/-77°09'12.2\"<br>
+            HA/Dec:     3h09m00.13s/-77°09'12.2\"  <br>
+            Az./Alt.: +190°22'23.9\"/+24°56'19.5\"  <br>
+            Gal. long./lat.: -55°14'08.6\"/-39°46'13.6\"<br>
+            Supergal. long./lat.: -140°32'37.8\"/-13°43'04.9\"<br>
+            Ecl. long./lat. (J2000.0): +300°56'54.3\"/-64°47'36.4\"<br>
+            Ecl. long./lat. (on date): +301°14'15.3\"/-64°47'44.1\"<br>
+            Ecliptic obliquity (on date): +23°26'11.6\"<br>
+            Mean Sidereal Time: 3h35m40.0s<br>
+            Apparent Sidereal Time: 3h35m39.0s<br>
+            Transit: 14h29m<br />
+            Circumpolar (never sets)<br />
+            IAU Constellation: Hyi<br>
+            Distance: 24.33 ly<br />
+            Spectral Type: G0V<br />
+            Parallax: 0.13407\"<br />
+            Proper motions by axes: 2579.3 599.2 (mas/yr)<br />
+            Position angle of the proper motion: 76.9°<br />
+            Angular speed of the proper motion: 2648.0 (mas/yr)</font>"
+            Star Name:  "β Hyi - HIP 2021 - SAO 255670 - HD 2151 - HR 98"
+
+            */
+
+            QJsonObject selectedItem;
+
+            QString tmp = infoBuffer;
+            //qDebug() << infoBuffer;
+
+            selectedItem["name"] = srtipInfo(tmp,"<h2>","</h2>");
+
+            if(tmp.indexOf("Type:") != -1) selectedItem["Type"] = srtipInfo(tmp,"Type: <b>","</b>");
+            if(tmp.indexOf("Magnitude:") != -1) selectedItem["Magnitude"] = srtipInfo(tmp,"Magnitude: <b>","</b>");
+            if(tmp.indexOf("Absolute Magnitude:") != -1) selectedItem["ABSmagnitude"] = srtipInfo(tmp,"Absolute Magnitude: ","<br />");
+            if(tmp.indexOf("Color Index:") != -1) selectedItem["ColorIndex"] = srtipInfo(tmp,"Color Index (B-V): <b>","</b>");
+            if(tmp.indexOf("RA/Dec (J2000.0):") != -1) selectedItem["RADECJ2000"] = srtipInfo(tmp,"RA/Dec (J2000.0):     ","\"<br>");
+            if(tmp.indexOf("RA/Dec (on date):") != -1) selectedItem["RADECDate"] = srtipInfo(tmp,"RA/Dec (on date):     ","\"<br>");
+            if(tmp.indexOf("HA/Dec:") != -1) selectedItem["HADEC"] = srtipInfo(tmp,"HA/Dec:     ","\"  <br>");
+            if(tmp.indexOf("Az./Alt.:") != -1) selectedItem["AZALT"] = srtipInfo(tmp,"Az./Alt.: ","\"  <br>");
+            if(tmp.indexOf("Gal. long./lat.:") != -1) selectedItem["GalLongLat"] = srtipInfo(tmp,"Gal. long./lat.: ","\"<br>");
+            if(tmp.indexOf("Supergal. long./lat.:") != -1) selectedItem["SuperGalLongLat"] = srtipInfo(tmp,"Gal. long./lat.: ","\"<br>");
+
+            if(tmp.indexOf("Ecl. long./lat. (J2000.0):") != -1) selectedItem["EclJ2000LongLat"] = srtipInfo(tmp,"Ecl. long./lat. (J2000.0): ","\"<br>");
+            if(tmp.indexOf("Ecl. long./lat. (on date):") != -1) selectedItem["EclDateLongLat"] = srtipInfo(tmp,"Ecl. long./lat. (on date): ","\"<br>");
+            if(tmp.indexOf("Ecliptic obliquity (on date):") != -1) selectedItem["EclOblDate"] = srtipInfo(tmp,"Ecliptic obliquity (on date): ","\"<br>");
+            if(tmp.indexOf("Mean Sidereal Time:") != -1) selectedItem["MeanSidTime"] = srtipInfo(tmp,"Mean Sidereal Time: ","<br>");
+            if(tmp.indexOf("Apparent Sidereal Time:") != -1) selectedItem["ApparentSidTime"] = srtipInfo(tmp,"Apparent Sidereal Time: ","<br>");
+            if(tmp.indexOf("Transit:") != -1) selectedItem["Transit"] = srtipInfo(tmp,"Transit: ","<br />");
+
+            if(tmp.indexOf("IAU Constellation:") != -1) selectedItem["IAU"] = srtipInfo(tmp,"IAU Constellation: ","<br>");
+            if(tmp.indexOf("Distance:") != -1) selectedItem["Distance"] = srtipInfo(tmp,"Distance: ","<br />");
+            if(tmp.indexOf("Spectral Type:") != -1) selectedItem["SpectralType"] = srtipInfo(tmp,"Spectral Type: ","<br />");
+            if(tmp.indexOf("Parallax:") != -1) selectedItem["Parallax"] = srtipInfo(tmp,"Parallax: ","\"<br />");
+            if(tmp.indexOf("Proper motions by axes:") != -1) selectedItem["MotionByAxes"] = srtipInfo(tmp,"Proper motions by axes: ","<br />");
+            if(tmp.indexOf("Position angle of the proper motion:") != -1) selectedItem["PosAngPropMotion"] = srtipInfo(tmp,"Position angle of the proper motion: ","<br />");
+
+            if(tmp.indexOf("Angular speed of the proper motion:") != -1) selectedItem["AngSpeedPropMotion"] = srtipInfo(tmp,"Angular speed of the proper motion: ","</font>");
+
+            QJsonDocument doc(selectedItem);
+            QString strJson(doc.toJson(QJsonDocument::Compact));
+
+            if(client1!= NULL) client1->write(strJson.toLocal8Bit());
+
+            qDebug() << "Selected: " << strJson;
+
+            keyState = 2;
+        }
+        break;
+    default:
+        keyState = 0;
+        qDebug() << "keyPressedSendInfo: " << event->key();
+        break;
+    }
 }
 
 void SkyGui::init(StelGui* astelGui)

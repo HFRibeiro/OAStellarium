@@ -85,11 +85,14 @@ private slots:
     void acceptConnection1();
 
     void startRead1();
+
+    QString srtipInfo(QString tmpInfo, QString keyStart, QString keyEnd);
 	
 public slots:
 	//! Update the position of the button bars in the main window
 	//! GZ needed this public for interactive GUI scaling
 	void updateBarsPos();
+    void keyPressedSendInfo(QKeyEvent *event);
 
 private:
 	class StelBarsPath* buttonBarPath;

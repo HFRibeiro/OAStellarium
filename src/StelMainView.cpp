@@ -78,6 +78,8 @@ Q_LOGGING_CATEGORY(mainview, "stel.MainView")
 
 #include <clocale>
 
+#include "gui/SkyGui.hpp"
+
 // Initialize static variables
 StelMainView* StelMainView::singleton = Q_NULLPTR;
 
@@ -299,6 +301,11 @@ public:
 protected:
 	void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE
 	{
+        qDebug() << "KeyPressEvent: " << event->key();
+		
+		SkyGui sky_gui;
+        sky_gui.keyPressedSendInfo(event);
+
 		// Try to trigger a global shortcut.
 		StelActionMgr* actionMgr = StelApp::getInstance().getStelActionManager();
 		if (actionMgr->pushKey(event->key() + event->modifiers(), true)) {
