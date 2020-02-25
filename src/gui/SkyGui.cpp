@@ -38,7 +38,7 @@
 
 QTcpServer server1;
 int porta1;
-QTcpSocket* client1;
+QTcpSocket* client1 = NULL;
 int keyState = 0;
 QString infoBuffer = "";
 
@@ -271,9 +271,7 @@ SkyGui::SkyGui(QGraphicsItem * parent)
 
     porta1 = 8001;
 
-    client1 = NULL;
-
-    server1.listen(QHostAddress::Any, porta1);
+    if(!server1.isListening()) server1.listen(QHostAddress::Any, porta1);
 
     connect(&server1, SIGNAL(newConnection()),this, SLOT(acceptConnection1()));
 }
@@ -284,7 +282,9 @@ void SkyGui::acceptConnection1()
 
     connect(client1, SIGNAL(readyRead()),this, SLOT(startRead1()));
 
-    client1->write("Hello Mod1");
+    client1->write("{\"msg\":\"Hello client 1\"}");
+
+    if(client1 == NULL) qDebug() << "Cliente 1 Still on NULL";
 
     qDebug() << "Aceppt1";
 

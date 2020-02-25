@@ -113,7 +113,7 @@ private:
 	bool autoHideHorizontalButtonBar;
 	bool autoHideVerticalButtonBar;
 	
-	StelGui* stelGui;
+    StelGui* stelGui;
 };
 
 #endif // _SKYGUI_HPP
